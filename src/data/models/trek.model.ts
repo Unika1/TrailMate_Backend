@@ -5,6 +5,7 @@ const itinerarySchema = new Schema({
   title: String,
   altitude: String,
   walkingHours: String,
+  status: String,        // e.g. "Rest Day" (used instead of walkingHours on acclimatization days)
   description: String
 }, { _id: false });
 
@@ -13,9 +14,12 @@ const contactSchema = new Schema({
   name: String,
   location: String,
   phone: String,
-  price: String,
+  price: String,         // jeep: fare e.g. "1500"; hotel: per-night e.g. "2000"
   verifiedDate: String,
-  amenities: [String]
+  amenities: [String],
+  imageUrl: String,      // hotel photo
+  badge: String,         // "ECO-FRIENDLY" | "VERIFIED" | "HIMALAYAN AIR" | "PARK AUTHORITY"
+  description: String     // emergency detailed cards
 }, { _id: false });
 
 const costSchema = new Schema({
@@ -27,10 +31,31 @@ const costSchema = new Schema({
   totalEstimate: String
 }, { _id: false });
 
+// Structured budget cards shown on the Cost tab (with FIXED / EST. / DAILY tag)
+const budgetSchema = new Schema({
+  label: String,         // "Permit Fees"
+  amount: String,        // "6,000"
+  note: String,          // "FIXED" | "EST." | "DAILY"
+  icon: String           // semantic key: "permit" | "transport" | "hotel" | "food"
+}, { _id: false });
+
 const permitSchema = new Schema({
   name: String,
   fee: String,
-  whereToGet: String
+  whereToGet: String,
+  description: String
+}, { _id: false });
+
+const seasonSchema = new Schema({
+  name: String,          // "Spring"
+  months: String,        // "March – May"
+  description: String
+}, { _id: false });
+
+const coordinatesSchema = new Schema({
+  latitude: String,      // "27.9881° N"
+  longitude: String,     // "86.9250° E"
+  elevation: String      // "5,364m"
 }, { _id: false });
 
 export interface ITrek extends Document {
@@ -41,14 +66,19 @@ export interface ITrek extends Document {
   distance: string;
   maxAltitude: string;
   bestSeason: string[];
+  seasons: unknown[];
   description: string;
   highlights: string[];
   imageUrl: string;
   lastUpdated: string;
+  contactsVerified: string;
   itinerary: unknown[];
   costs: unknown;
+  budget: unknown[];
+  costNotice: string;
   permits: unknown[];
   contacts: unknown[];
+  coordinates: unknown;
   nearbyTreks: string[];
 }
 
@@ -60,14 +90,19 @@ const trekSchema = new Schema<ITrek>({
   distance: String,
   maxAltitude: String,
   bestSeason: [String],
+  seasons: [seasonSchema],
   description: String,
   highlights: [String],
   imageUrl: String,
   lastUpdated: String,
+  contactsVerified: String,
   itinerary: [itinerarySchema],
   costs: costSchema,
+  budget: [budgetSchema],
+  costNotice: String,
   permits: [permitSchema],
   contacts: [contactSchema],
+  coordinates: coordinatesSchema,
   nearbyTreks: [String]
 }, { timestamps: true });
 

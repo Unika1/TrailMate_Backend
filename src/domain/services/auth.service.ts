@@ -10,9 +10,12 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await UserModel.create({ name, email, password: hashedPassword });
-    const token = jwt.sign({ id: user._id }, env.jwtSecret, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, role: user.role }, env.jwtSecret, { expiresIn: '7d' });
 
-    return { token, user: { id: user._id, name: user.name, email: user.email } };
+    return {
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    };
   }
 
   async login(email: string, password: string) {
@@ -22,7 +25,10 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) throw new Error('Invalid email or password');
 
-    const token = jwt.sign({ id: user._id }, env.jwtSecret, { expiresIn: '7d' });
-    return { token, user: { id: user._id, name: user.name, email: user.email } };
+    const token = jwt.sign({ id: user._id, role: user.role }, env.jwtSecret, { expiresIn: '7d' });
+    return {
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    };
   }
 }
